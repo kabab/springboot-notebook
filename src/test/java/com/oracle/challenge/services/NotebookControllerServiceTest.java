@@ -18,7 +18,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyString;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NotebookServiceTest {
+public class NotebookControllerServiceTest {
 
     @Mock
     private PythonService pythonService;

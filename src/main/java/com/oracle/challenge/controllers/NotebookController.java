@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class Notebook {
+public class NotebookController {
 
     @Autowired
     private NotebookService notebookService;
@@ -19,16 +19,7 @@ public class Notebook {
     @PostMapping("/execute")
     public ResponseEntity execute(@RequestBody ExecutionRequest request,
                                   @RequestParam(required = false, name = "sessionId") String sessionId) {
-        /*ExecutionResponse exResp;
-        if (sessionId != null) {
-            exResp = notebookService.executeCode(sessionId, request.getCode());
-        } else {
-            sessionId = notebookService.createInstance();
-            exResp = notebookService.executeCode(sessionId, request.getCode());
-        }*/
-
         ExecutionResponse exResp = notebookService.executeCode(sessionId, request.getCode());
-
         return ResponseEntity.ok(exResp);
     }
 }
