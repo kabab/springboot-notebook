@@ -35,11 +35,10 @@ public class NotebookService {
 
         code = code.substring(s[0].length() + 1);
 
-        if (interpreter.sessionExist(sessionId)) {
-            return interpreter.executeCode(sessionId, code);
+        if (!interpreter.sessionExist(sessionId)) {
+            sessionId = interpreter.createInstance();
         }
 
-        String id = interpreter.createInstance();
-        return interpreter.executeCode(id,code);
+        return interpreter.executeCode(sessionId, code);
     }
 }
