@@ -11,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
 
+import java.io.*;
+
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyString;
 
@@ -22,6 +24,50 @@ public class NotebookControllerTest {
 
     @Mock
     private NotebookService notebookService;
+
+
+    @Test
+    public void anotherTest() throws IOException {
+        Process process = new ProcessBuilder("python3", "-u", "-i").redirectErrorStream(true).start();
+
+        OutputStream outputStream = process.getOutputStream();
+        PrintWriter printWriter = new PrintWriter(outputStream);
+
+        InputStreamReader in = new InputStreamReader(process.getInputStream());
+        BufferedReader reader = new BufferedReader(in);
+        String s = null;
+
+        while (!reader.ready());
+
+        while ( reader.ready()) {
+            reader.read();
+        }
+
+        printWriter.println("a = 10");
+        printWriter.flush();
+
+        StringBuffer buff = new StringBuffer();
+
+        while (!reader.ready());
+        while ( reader.ready()) {
+            buff.append((char)reader.read());
+        }
+
+        System.out.println(buff.substring(0, buff.length() - 4));
+        System.out.println("----");
+
+        printWriter.println("print(a)");
+        printWriter.flush();
+
+        buff.delete(0, buff.length());
+        while (!reader.ready());
+        while (reader.ready()) {
+            buff.append((char)reader.read());
+        }
+
+        System.out.println(buff.substring(0, buff.length() - 4));
+        System.out.println("----");
+    }
 
     @Test
     public void executeShouldReturnResponseEntity() {

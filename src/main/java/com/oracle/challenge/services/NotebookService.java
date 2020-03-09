@@ -1,5 +1,6 @@
 package com.oracle.challenge.services;
 
+import com.oracle.challenge.conf.NotebookConf;
 import com.oracle.challenge.domains.ExecutionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,9 @@ public class NotebookService {
 
     @Autowired
     private List<Interpreter> interpreters;
+
+    @Autowired
+    private NotebookConf notebookConf;
 
     public ExecutionResponse executeCode(String sessionId, String code) {
         String[] s = code.split(" ");
@@ -39,6 +43,36 @@ public class NotebookService {
             sessionId = interpreter.createInstance();
         }
 
-        return interpreter.executeCode(sessionId, code);
+        final ExecutionResponse[] executionResponse = new ExecutionResponse[1];
+
+        String finalSessionId = sessionId;
+        String finalCode = code;
+        Thread thread = new Thread(() -> {
+            executionResponse[0] = interpreter.executeCode(finalSessionId, finalCode);
+        });
+
+        exResp.setSessionId(sessionId);
+        thread.start();
+
+        try {
+            thread.join(notebookConf.getTimeout());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Thread.State state = thread.getState();
+        switch (state) {
+            case TERMINATED:
+                exResp.setResult(executionResponse[0].getResult());
+                break;
+            case TIMED_WAITING:
+                exResp.setResult("Notebook Error: Timeout");
+                thread.interrupt();
+                break;
+            default:
+                exResp.setResult("Notebook Error: Unknown");
+        }
+
+        return exResp;
     }
 }
